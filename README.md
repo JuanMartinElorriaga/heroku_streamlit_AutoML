@@ -7,3 +7,4 @@ Files needed to deploy in Heroku:
 - Procfile
 - requirements.txt -> dependencies (see the environment used)
 - script.py
+- setup.sh
