@@ -1,25 +1,18 @@
-# AUTOML graphic interface for GM clients who wnat to find value in Analytics
+# Graphic interface for GM clients who wnat a Data-Focused CRO
 #from datetime import date
 #import janitor
 #from datacleaner import autoclean
 #from google.cloud import bigquery
-from streamlit_folium import folium_static
-import folium
 import streamlit as st
 import numpy as np
 import pandas as pd
 from pandas_profiling import ProfileReport
 from streamlit_pandas_profiling import st_profile_report
 import plotly.express as px
-import plotly.figure_factory as ff
 import matplotlib.pyplot as plt
-import seaborn as sns
-from plotly.offline import init_notebook_mode, iplot, plot
-import plotly.graph_objs as go
-#plt.style.use('fivethirtyeight')
 from sklearn.model_selection import train_test_split
-#import warnings
-#warnings.filterwarnings('ignore')
+import warnings
+warnings.filterwarnings('ignore')
 
 #from sklearn.preprocessing   import StandardScaler
 #from sklearn.metrics         import confusion_matrix
@@ -53,7 +46,8 @@ def load_data(file, sep=",", header=0):
     return df.sort_index()
 
 # Load DataFrame
-df = load_data(df_path, sep=",", header=0) #FIXME: only works in local
+df = load_data(df_path, sep=",", header=0)
+df = df.iloc[:,2:]
 
 ################################################################################
 # "Begin" button
@@ -187,7 +181,7 @@ if check_box_begin:
                                 template = "ggplot2")
                 plotly_pie = px.histogram(df,  
                                 x = features_plot_selection,
-                                #title = str(features_plot_selection)[1:-1].replace('\'','').replace(',',' +') + " timeline",
+                                title = str(features_plot_selection)[1:-1].replace('\'','').replace(',',' +') + " histogram",
                                 template = "ggplot2")
                 st.plotly_chart(plotly_line)
                 st.plotly_chart(plotly_pie)
@@ -221,6 +215,25 @@ if check_box_begin:
             st.markdown("- Since this revenue is of vital importance to every e-commerce local, we will tell the AI algorithm to learn how to predict it.")
             st.markdown("- As a result, we are expecting a list of users, with an individual predictive revenue for each one.")
             st.markdown("- _Note:_ Since this is just a demo to show you the process, we will skip the pre-process steps and go straight to the final results.")
+            
+            
+            st.markdown(
+                    f'<h4 style="color: #FB5906; font-size: big">{"Type of Model"}</h4>',
+                    unsafe_allow_html=True)
+            st.markdown("The kind of model depends on the nature of the variable to predict. Therefore, since we are now looking for a numeric value (future revenue of each individual), this is a **Regression model**.")
+            st.markdown(
+                    f'<h4 style="color: #FB5906; font-size: big">{"Variable to predict"}</h4>',
+                    unsafe_allow_html=True)
+            st.markdown("- Revenue of each customer.")
+            st.markdown(
+                    f'<h4 style="color: #FB5906; font-size: big">{"Predictors"}</h4>',
+                    unsafe_allow_html=True)
+            st.markdown("- These are the features used to _\"feed\"_ the model, and learn patterns about the variable to predict.")
+            st.markdown("- In this case, there are multiple predictors, which can be seen in Step 1: Descriptive Analytics. Among them: Channel Grouping, total hits, kind of browser, country, total transactions, total pageviews, etc.")
+            st.markdown(
+                    f'<h4 style="color: #FB5906; font-size: big">{"How to determine the precision of the model?"}</h4>',
+                    unsafe_allow_html=True)
+            st.markdown("- Basically, we take each point of prediction and compare it to the actual value, present in the dataset. The average of all those errors is then taken as the final score of the model, to determine how precise the predictions actually are.")
             st.markdown(
                     f'<h4 style="color: #FB5906; font-size: big">{"Final Result"}</h4>',
                     unsafe_allow_html=True)
@@ -228,7 +241,8 @@ if check_box_begin:
                 'fullVisitorId': ['0000040862739425590', '0000039460501403861', '0000085059828173212', '000026722803385797', '0000436683523507380'],
                 'Predicted Revenue': [103.15, 191.20, 25.80, 0, 0]
             })
-            st.markdown("- The algorithm takes almost _3/4 parts_ of the dataset to learn common pattern and behaviors from users, and then predicts the last _1/4 part_. It is important to clear out that this _1/4 part_ is new data for the algorithm!")
+            st.markdown("This is a sample of the final matrix. Just like we planned, the algorithm calculates the predicted value of Revenue for each particular user, depending on his (her) particular behavior.")
+            st.markdown("- The algorithm takes almost _3/4 parts_ of the dataset to learn common pattern and behaviors from users, and then predicts the last _1/4 part_. It is important to clear out that this _1/4 part_ is new data for the algorithm! That is the point of this: to be capable to predict on fresh data!")
             st.markdown(
                     f'<h4 style="color: #FB5906; font-size: big">{"Take a look at Step 4: Prescriptive Analytics for a more complete description of outputs."}</h4>',
                     unsafe_allow_html=True)
@@ -333,6 +347,4 @@ if check_box_begin:
             
             st.markdown("<img src='https://raw.githubusercontent.com/JuanMartinElorriaga/datascience/master/Screen Shot 2021-05-11 at 14.07.05.png' style='width:700px;height:700px;'>", unsafe_allow_html=True) # image from URL
             st.markdown("- As it shows in the image, the algorithm states that **total pageviews, total hits and visit start time are the most crucial factors that determine the future value of revenue**.")
-
-
-        
+    
