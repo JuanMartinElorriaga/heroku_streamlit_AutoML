@@ -4,6 +4,7 @@
 #from datacleaner import autoclean
 #from google.cloud import bigquery
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
 import pandas as pd
 from pandas_profiling import ProfileReport
@@ -47,8 +48,6 @@ def load_data(file, sep=",", header=0):
 
 # Load DataFrame
 df = load_data(df_path, sep=",", header=0)
-df = df.iloc[:,2:]
-
 ################################################################################
 # "Begin" button
 check_box_begin = st.sidebar.checkbox("Begin!") 
@@ -75,7 +74,7 @@ if check_box_begin:
     check_box_step_one = st.sidebar.checkbox("Step 1: Descriptive Analytics")
     check_box_step_two = None
     check_box_step_three = None
-    check_box_step_four = None
+    #check_box_step_four = None
     if not check_box_step_one:
         # Display useful information for the user
         st.markdown("Great! Let's begin then. Before digging into a dataset, we would like to show you our analytics roadmap _(you can skip this step and dive into Step 2 if you prefer)_ ")
@@ -119,7 +118,7 @@ if check_box_begin:
 
     # "Descriptive analytics" button
     if check_box_step_one:
-        check_box_step_two = st.sidebar.checkbox("Step 2: Graphics")
+        check_box_step_two = st.sidebar.checkbox("Step 2: Predictive Analytics")
         #df = load_data(df_path, sep=",", header=0) #FIXME: only works in local
         if not check_box_step_two:
             st.markdown(
@@ -130,7 +129,7 @@ if check_box_begin:
             # Display head
             st.dataframe(df.head(5))
             # Description of each feature
-            st.markdown("This is a classic Google Analytics dataset. Below is a brief description of each column: ")
+            st.markdown("This is a classic **Google Analytics dataset**. Below is a brief description of each column: ")
             st.markdown("- _fullVisitorId_: A unique identifier for each user of the Google Merchandise Store.")
             st.markdown("- _channelGrouping_: The channel via which the user came to the Store.")
             st.markdown("- _date_: The date on which the user visited the Store.")
@@ -149,47 +148,34 @@ if check_box_begin:
             st.markdown(
                 f'<h3 style="color: #FB5906; font-size: big">{"Profiling report"}</h3>',
                 unsafe_allow_html=True)
-            st.markdown("We are making a **profiling report** for the whole dataset. This may take a while, but the output is _priceless_: it will return the **\"big picture\"** of what we available to work with, such as:  ")
+            st.markdown("First things first. We take the whole dataset and make an extensive **profiling report**. No matter the subject involved, this report is _priceless_: it returns the **\"big picture\"** of what we are available to work with, such as:  ")
             st.markdown("- **Essentials**: type, unique values, missing values, min, max, quantiles, etc.")
             st.markdown("- **Descriptive statistics**: mean, mode, standard deviation, sum, median absolute deviation, coefficient of variation, kurtosis, skewness")
             st.markdown("- **Histograms**, **text analysis** and **image analysis**.")
             st.markdown("- **Correlations** between variables.")
+            st.markdown("- **File and Image analysis**")
+            st.markdown("- **Text analysis**")
             st.write(" ")
             st.markdown("After this process, we have made the first step to turn the raw data into information, displaying historical patterns of behaviors and performance. We can continue to \"Step 2: Predictive Analytics\".")
             # Display PANDAS PROFILING
-            
-            prof = ProfileReport(df, explorative=True, orange_mode=True)
-            st_profile_report(prof)
+            st.markdown(
+                f'<h3 style="color: #FB5906; font-size: big">{"Watch the profiling report for yourself!"}</h3>',
+                unsafe_allow_html=True)
+            # link to Github
+            link = '[GO TO PROFILING REPORT!](https://htmlpreview.github.io/?https://github.com/JuanMartinElorriaga/datascience/blob/master/GM2dev/prof_report.html)'
+            st.markdown(link, unsafe_allow_html=True)
+
+            #HtmlFile = open("/Users/juanmartinelorriaga/Documents/repositorios/Marketing_GM/CRO/data/processed/prof_report.html", 'r', encoding='utf-8')
+            #source_code = HtmlFile.read()
+            #print(source_code)
+            #components.html(source_code)
+
+            #prof = ProfileReport(df, explorative=True, orange_mode=True)
+            #st_profile_report(prof)
 
     if check_box_step_two:
-        check_box_step_three = st.sidebar.checkbox("Step 3: Predictive Analytics")
+        check_box_step_three = st.sidebar.checkbox("Step 3: Prescriptive Analytics")
         if not check_box_step_three:
-            st.markdown(
-                    f'<h2 style="color: #FB5906; font-size: big">{"Visual Dashboards"}</h2>',
-                    unsafe_allow_html=True)
-            st.markdown("- This step is an extension of Step 1, since we are adding a graphic interpretation.")
-            st.markdown("- This is just a sample. Many applied graphics are shown in Step 4: Prescriptive Analytics.")
-            st.markdown("- Visual dashboards are a _\"must have\"_ in the area of Analytics. Good visual dashboards allow users to **monitor, explore, analyze, and drilldown into details**. They are easy to use, modify, and create all the while being suitable for both executive and power-user exploration.")
-
-            features_plot_selection = st.multiselect(label="Features to plot in timeline", 
-                                                     options=[c for c in df.columns if df[str(c)].dtype.kind in 'biufc'])
-            if features_plot_selection:
-                plotly_line = px.line(df, 
-                                x = df.index, 
-                                y = features_plot_selection,
-                                title = str(features_plot_selection)[1:-1].replace('\'','').replace(',',' +') + " timeline",
-                                template = "ggplot2")
-                plotly_pie = px.histogram(df,  
-                                x = features_plot_selection,
-                                title = str(features_plot_selection)[1:-1].replace('\'','').replace(',',' +') + " histogram",
-                                template = "ggplot2")
-                st.plotly_chart(plotly_line)
-                st.plotly_chart(plotly_pie)
-
-    # DESCRIPTIVE ANALYSIS
-    if check_box_step_three:
-        check_box_step_four = st.sidebar.checkbox("Step 4: Prescriptive Analytics")
-        if not check_box_step_four:
             st.markdown(
                     f'<h2 style="color: #FB5906; font-size: big">{"Predictive Models"}</h2>',
                     unsafe_allow_html=True)
@@ -215,8 +201,7 @@ if check_box_begin:
             st.markdown("- Since this revenue is of vital importance to every e-commerce local, we will tell the AI algorithm to learn how to predict it.")
             st.markdown("- As a result, we are expecting a list of users, with an individual predictive revenue for each one.")
             st.markdown("- _Note:_ Since this is just a demo to show you the process, we will skip the pre-process steps and go straight to the final results.")
-            
-            
+        
             st.markdown(
                     f'<h4 style="color: #FB5906; font-size: big">{"Type of Model"}</h4>',
                     unsafe_allow_html=True)
@@ -246,8 +231,10 @@ if check_box_begin:
             st.markdown(
                     f'<h4 style="color: #FB5906; font-size: big">{"Take a look at Step 4: Prescriptive Analytics for a more complete description of outputs."}</h4>',
                     unsafe_allow_html=True)
-        # PRESCRIPTIVE ANALYSIS
-        if check_box_step_four:
+            
+
+    # DESCRIPTIVE ANALYSIS
+        if check_box_step_three:
             st.markdown(
                     f'<h2 style="color: #FB5906; font-size: big">{"Customer Revenue Model: Prescriptive Actions"}</h2>',
                     unsafe_allow_html=True)
@@ -344,7 +331,17 @@ if check_box_begin:
             st.markdown(
                     f'<h3 style="color: #FB5906; font-size: big">{"Feature Importance"}</h3>',
                     unsafe_allow_html=True)
-            
-            st.markdown("<img src='https://raw.githubusercontent.com/JuanMartinElorriaga/datascience/master/Screen Shot 2021-05-11 at 14.07.05.png' style='width:700px;height:700px;'>", unsafe_allow_html=True) # image from URL
+            df_cities = pd.DataFrame({
+                                    'City': ["Mountain View", "New York", "San Francisco", "Sunnyvale", "London"],
+                                    'Count': [2867, 1910, 1432 , 895, 879],
+                                    'Observation': ['has 19% of visits but just 16% of revenues', 'responsible for 14% of visits and 31% of revenues', '3.5% of visits but has a high significance in revenues', '', '']
+                                     })
+            df_feature_imp = pd.DataFrame({
+                                    'Features': ["Pageviews ", "Hits ", "Visit Start Time ", "Visit Number ", "Network Domain ", "City ", "Metro ", "Region ", "Operating System ", "Country ", "Source ", "referral Path ", "Channel Grouping ", "Device Category ", "Keyboard ", "adWords Click Info ", "Source medium ", "Direct ", "New Visits ", "Continent ", "Browser ", "Bounces ", "Sub Continent "],
+                                    'Importance': [1106, 1105, 1058, 585, 509, 426, 321, 305, 288, 248, 222, 178, 137, 118, 103, 101, 96, 91, 89, 72, 71, 70, 40]
+            })
+            fig_features = px.bar(df_feature_imp, x='Importance', y='Features', color='Features', width=800, height=700, color_discrete_sequence=px.colors.qualitative.Set2)
+            st.plotly_chart(fig_features)
+            #st.markdown("<img src='https://raw.githubusercontent.com/JuanMartinElorriaga/datascience/master/Screen Shot 2021-05-11 at 14.07.05.png' style='width:700px;height:700px;'>", unsafe_allow_html=True) # image from URL
             st.markdown("- As it shows in the image, the algorithm states that **total pageviews, total hits and visit start time are the most crucial factors that determine the future value of revenue**.")
     
